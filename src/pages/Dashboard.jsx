@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { UserPlus, Stethoscope, FileText } from "lucide-react";
+import { UserPlus, Stethoscope, Users } from "lucide-react";
 
-const HomePage = () => {
+const Dashboard = () => {
   const navigate = useNavigate();
 
   const actions = [
@@ -15,13 +15,13 @@ const HomePage = () => {
       title: "Diagnose Patient",
       icon: <Stethoscope size={36} strokeWidth={1.2} />,
       description: "Record symptoms and generate TB risk assessment.",
-      link: "/diagnosis/start",
+      link: "/patients",
     },
     {
-      title: "View Reports",
-      icon: <FileText size={36} strokeWidth={1.2} />,
-      description: "View clinical diagnostic reports for patients.",
-      link: "/reports",
+      title: "View All Patients",
+      icon: <Users size={36} strokeWidth={1.2} />,
+      description: "Browse and manage all registered patients.",
+      link: "/patients",
     },
   ];
 
@@ -33,7 +33,7 @@ const HomePage = () => {
       "
       style={{ backgroundImage: "url('/src/assets/bg-medical.jpg')" }}
     >
-      {/* Dim overlay without blur */}
+      {/* Dim overlay */}
       <div className="absolute inset-0 bg-black/25"></div>
 
       {/* Content */}
@@ -42,7 +42,7 @@ const HomePage = () => {
         {/* Header Section */}
         <div className="max-w-3xl text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
-            TB Expert System
+            Akpos TB Expert System
           </h1>
 
           <p className="text-gray-200 text-base md:text-lg leading-relaxed">
@@ -52,7 +52,7 @@ const HomePage = () => {
         </div>
 
         {/* Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full px-4">
           {actions.map((action, index) => (
             <div
               key={index}
@@ -68,7 +68,6 @@ const HomePage = () => {
               <div
                 className="
                   text-blue-700 mb-4 p-3 rounded-full bg-blue-50
-                  group-hover:bg-blue-100 group-hover:shadow-sm
                   transition-all duration-300
                 "
               >
@@ -88,11 +87,11 @@ const HomePage = () => {
 
         {/* Footer */}
         <footer className="mt-16 text-gray-300 text-xs text-center">
-          © {new Date().getFullYear()} TB Expert System — Academic Project
+          © {new Date().getFullYear()} Akpos TB Expert System — Academic Project
         </footer>
       </div>
     </div>
   );
 };
 
-export default HomePage;
+export default Dashboard;
