@@ -31,7 +31,7 @@ const Dashboard = () => {
         min-h-screen relative flex flex-col items-center px-6 py-20
         bg-cover bg-center bg-no-repeat
       "
-      style={{ backgroundImage: "url('/src/assets/bg-medical.jpg')" }}
+      style={{ backgroundImage: "url('/bg-medical.jpg')" }}
     >
       {/* Dim overlay */}
       <div className="absolute inset-0 bg-black/25"></div>
