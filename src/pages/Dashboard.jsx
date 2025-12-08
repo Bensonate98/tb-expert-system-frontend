@@ -42,7 +42,7 @@ const Dashboard = () => {
         {/* Header Section */}
         <div className="max-w-3xl text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
-            Akpos TB Expert System
+            Xtreme Medical Centre<br></br> TB Expert System
           </h1>
 
           <p className="text-gray-200 text-base md:text-lg leading-relaxed">
