@@ -87,7 +87,7 @@ const Dashboard = () => {
 
         {/* Footer */}
         <footer className="mt-16 text-gray-300 text-xs text-center">
-          © {new Date().getFullYear()} Akpos TB Expert System — Academic Project
+          © {new Date().getFullYear()} Akpos Favour TB Expert System — Academic Project
         </footer>
       </div>
     </div>
