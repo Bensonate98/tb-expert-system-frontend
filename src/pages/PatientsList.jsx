@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Search, UserPlus, Activity, FileText, Users } from "lucide-react";
-import api from "../services/api";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  UserPlus,
+  Activity,
+  FileText,
+  Users,
+  Trash2,
+  X,
+} from "lucide-react";
+import api, { deletePatient } from "../services/api";
 
 export default function PatientsList() {
   const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -22,6 +34,38 @@ export default function PatientsList() {
     };
     fetchPatients();
   }, []);
+
+  const openDeleteModal = (patient) => {
+    setSelectedPatient(patient);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    if (deleting) return;
+    setShowDeleteModal(false);
+    setSelectedPatient(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedPatient) return;
+
+    setDeleting(true);
+    try {
+      await deletePatient(selectedPatient.id);
+      setPatients((prev) =>
+        prev.filter((p) => p.id !== selectedPatient.id)
+      );
+      closeDeleteModal();
+    } catch (error) {
+      console.error(error);
+      alert(
+        error.response?.data?.error?.message ||
+          "Failed to delete patient."
+      );
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const filtered = patients.filter(
     (p) =>
@@ -38,7 +82,7 @@ export default function PatientsList() {
           <div className="flex gap-3">
             <Link
               to="/"
-              className="bg-gray-500 text-white px-4 py-2 rounded-xl shadow hover:bg-gray-600 flex items-center gap-2"
+              className="bg-gray-500 text-white px-4 py-2 rounded-xl shadow hover:bg-gray-600"
             >
               ← Back to Dashboard
             </Link>
@@ -52,7 +96,6 @@ export default function PatientsList() {
           </div>
         </div>
 
-
         <div className="relative mb-6">
           <Search className="absolute left-3 top-3 text-gray-400" size={20} />
           <input
@@ -64,7 +107,9 @@ export default function PatientsList() {
           />
         </div>
 
-        {loading && <p className="text-center text-gray-600">Loading patients...</p>}
+        {loading && (
+          <p className="text-center text-gray-600">Loading patients...</p>
+        )}
 
         {!loading && filtered.length === 0 && (
           <motion.div
@@ -76,8 +121,8 @@ export default function PatientsList() {
             <h2 className="text-xl font-semibold mb-2">No Patients Found</h2>
             <p className="text-center max-w-sm">
               {patients.length === 0
-                ? "There are no registered patients yet. Start by adding a new patient."
-                : "No patient matches your search. Try another name or patient code."}
+                ? "There are no registered patients yet."
+                : "No patient matches your search."}
             </p>
 
             <Link
@@ -99,39 +144,51 @@ export default function PatientsList() {
               <table className="w-full text-sm md:text-base">
                 <thead className="bg-blue-100 text-gray-700">
                   <tr>
-                    <th className="p-4 font-semibold">#</th>
-                    <th className="p-4 font-semibold">Patient Code</th>
-                    <th className="p-4 font-semibold">Full Name</th>
-                    <th className="p-4 font-semibold">Age</th>
-                    <th className="p-4 font-semibold">Gender</th>
-                    <th className="p-4 font-semibold hidden md:table-cell">Phone</th>
-                    <th className="p-4 font-semibold hidden md:table-cell">Address</th>
-                    <th className="p-4 font-semibold">Actions</th>
+                    <th className="p-4 font-semibold text-left">#</th>
+                    <th className="p-4 font-semibold text-left">Patient Code</th>
+                    <th className="p-4 font-semibold text-left">Full Name</th>
+                    <th className="p-4 font-semibold text-left">Age</th>
+                    <th className="p-4 font-semibold text-left">Gender</th>
+                    <th className="p-4 font-semibold text-left">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((patient, index) => (
                     <tr key={patient.id} className="hover:bg-blue-50 transition">
-                      <td className="p-4">{index + 1}</td>
-                      <td className="p-4 font-medium text-blue-700">{patient.patientCode}</td>
-                      <td className="p-4 font-medium">{patient.fullName}</td>
-                      <td className="p-4">{patient.age}</td>
-                      <td className="p-4 capitalize">{patient.gender}</td>
-                      <td className="p-4 hidden md:table-cell">{patient.phone}</td>
-                      <td className="p-4 hidden md:table-cell">{patient.address}</td>
-                      <td className="p-4 flex gap-2 flex-wrap">
-                        <Link
-                          to={`/diagnosis/start/${patient.id}`}
-                          className="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1 hover:bg-blue-700 text-xs md:text-sm"
-                        >
-                          <Activity size={16} /> Diagnose
-                        </Link>
-                        <Link
-                          to={`/reports/${patient.id}`}
-                          className="bg-yellow-500 text-white px-3 py-1 rounded-lg flex items-center gap-1 hover:bg-yellow-600 text-xs md:text-sm"
-                        >
-                          <FileText size={16} /> Reports
-                        </Link>
+                      <td className="p-4 align-middle">{index + 1}</td>
+                      <td className="p-4 font-medium text-blue-700 align-middle">
+                        {patient.patientCode}
+                      </td>
+                      <td className="p-4 font-medium align-middle">
+                        {patient.fullName}
+                      </td>
+                      <td className="p-4 align-middle">{patient.age}</td>
+                      <td className="p-4 capitalize align-middle">
+                        {patient.gender}
+                      </td>
+                      <td className="p-4 align-middle whitespace-nowrap">
+                        <div className="flex gap-2 items-center">
+                          <Link
+                            to={`/diagnosis/start/${patient.id}`}
+                            className="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1 hover:bg-blue-700 text-xs md:text-sm"
+                          >
+                            <Activity size={16} /> Diagnose
+                          </Link>
+
+                          <Link
+                            to={`/reports/${patient.id}`}
+                            className="bg-yellow-500 text-white px-3 py-1 rounded-lg flex items-center gap-1 hover:bg-yellow-600 text-xs md:text-sm"
+                          >
+                            <FileText size={16} /> Reports
+                          </Link>
+
+                          <button
+                            onClick={() => openDeleteModal(patient)}
+                            className="bg-red-600 text-white px-3 py-1 rounded-lg flex items-center gap-1 hover:bg-red-700 text-xs md:text-sm"
+                          >
+                            <Trash2 size={16} /> Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -141,6 +198,63 @@ export default function PatientsList() {
           </motion.div>
         )}
       </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800">
+                  Confirm Delete
+                </h2>
+                <button onClick={closeDeleteModal}>
+                  <X className="text-gray-400 hover:text-gray-600" />
+                </button>
+              </div>
+
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete{" "}
+                <span className="font-semibold">
+                  {selectedPatient?.fullName}
+                </span>
+                ?<br />
+                <span className="text-red-600 font-medium">
+                  This will permanently delete all related records.
+                </span>
+              </p>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={closeDeleteModal}
+                  disabled={deleting}
+                  className="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleting}
+                  className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700"
+                >
+                  {deleting ? "Deleting..." : "Yes, Delete"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

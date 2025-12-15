@@ -2,6 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "https://tb-expert-system-production.up.railway.app/api/v1", 
+  // baseURL: "http://localhost:8081/api/v1", 
   headers: {
     "Content-Type": "application/json",
   },
@@ -49,5 +50,12 @@ export const generateReport = async (payload) => {
   const response = await api.post("/reports", payload);
   return response.data;
 };
+
+// Delete a patient (and all related data)
+export const deletePatient = async (patientId) => {
+  const response = await api.delete(`/patients/${patientId}`);
+  return response.data;
+};
+
 
 export default api;
